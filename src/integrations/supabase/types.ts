@@ -14,16 +14,348 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      career_goals: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          target_industry: string | null
+          target_role: string | null
+          timeline: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          target_industry?: string | null
+          target_role?: string | null
+          timeline?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          target_industry?: string | null
+          target_role?: string | null
+          timeline?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cover_letters: {
+        Row: {
+          company: string | null
+          content: string | null
+          created_at: string
+          id: string
+          role: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          role?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          role?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      education: {
+        Row: {
+          created_at: string
+          degree: string | null
+          end_date: string | null
+          field: string | null
+          gpa: string | null
+          id: string
+          school: string
+          start_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          degree?: string | null
+          end_date?: string | null
+          field?: string | null
+          gpa?: string | null
+          id?: string
+          school: string
+          start_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          degree?: string | null
+          end_date?: string | null
+          field?: string | null
+          gpa?: string | null
+          id?: string
+          school?: string
+          start_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      experiences: {
+        Row: {
+          company: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          role: string | null
+          start_date: string | null
+          user_id: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          role?: string | null
+          start_date?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          role?: string | null
+          start_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          applied_at: string | null
+          company: string
+          created_at: string
+          id: string
+          notes: string | null
+          position: number
+          role: string
+          status: Database["public"]["Enums"]["job_status"]
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          role: string
+          status?: Database["public"]["Enums"]["job_status"]
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          company?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          role?: string
+          status?: Database["public"]["Enums"]["job_status"]
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portfolios: {
+        Row: {
+          about: string | null
+          created_at: string
+          hero: Json | null
+          id: string
+          sections: Json | null
+          slug: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          created_at?: string
+          hero?: Json | null
+          id?: string
+          sections?: Json | null
+          slug?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          created_at?: string
+          hero?: Json | null
+          id?: string
+          sections?: Json | null
+          slug?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          career_path: string | null
+          created_at: string
+          full_name: string | null
+          headline: string | null
+          id: string
+          onboarding_completed: boolean
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          career_path?: string | null
+          created_at?: string
+          full_name?: string | null
+          headline?: string | null
+          id: string
+          onboarding_completed?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          career_path?: string | null
+          created_at?: string
+          full_name?: string | null
+          headline?: string | null
+          id?: string
+          onboarding_completed?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resumes: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          template: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          template?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          template?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          level: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          level?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          level?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          repo: string | null
+          tags: string[] | null
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          repo?: string | null
+          tags?: string[] | null
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          repo?: string | null
+          tags?: string[] | null
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_owner: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      job_status: "applied" | "assessment" | "interview" | "offer" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +482,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      job_status: ["applied", "assessment", "interview", "offer", "rejected"],
+    },
   },
 } as const
