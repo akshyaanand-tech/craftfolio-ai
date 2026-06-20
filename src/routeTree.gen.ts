@@ -27,6 +27,7 @@ import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/j
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
 import { Route as AuthenticatedAtsRouteImport } from './routes/_authenticated/ats'
+import { Route as AuthenticatedResumesIdRouteImport } from './routes/_authenticated/resumes.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -118,6 +119,11 @@ const AuthenticatedAtsRoute = AuthenticatedAtsRouteImport.update({
   path: '/ats',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedResumesIdRoute = AuthenticatedResumesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedResumesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -129,7 +135,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof AuthenticatedJobsRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/resumes': typeof AuthenticatedResumesRoute
+  '/resumes': typeof AuthenticatedResumesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/skills': typeof AuthenticatedSkillsRoute
   '/templates': typeof AuthenticatedTemplatesRoute
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/resumes/$id': typeof AuthenticatedResumesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -148,7 +155,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AuthenticatedJobsRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/resumes': typeof AuthenticatedResumesRoute
+  '/resumes': typeof AuthenticatedResumesRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/skills': typeof AuthenticatedSkillsRoute
   '/templates': typeof AuthenticatedTemplatesRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/resumes/$id': typeof AuthenticatedResumesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,7 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
   '/_authenticated/portfolio': typeof AuthenticatedPortfolioRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/_authenticated/resumes': typeof AuthenticatedResumesRoute
+  '/_authenticated/resumes': typeof AuthenticatedResumesRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/skills': typeof AuthenticatedSkillsRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/_authenticated/resumes/$id': typeof AuthenticatedResumesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
+    | '/resumes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
+    | '/resumes/$id'
   id:
     | '__root__'
     | '/'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
+    | '/_authenticated/resumes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -378,8 +390,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAtsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resumes/$id': {
+      id: '/_authenticated/resumes/$id'
+      path: '/$id'
+      fullPath: '/resumes/$id'
+      preLoaderRoute: typeof AuthenticatedResumesIdRouteImport
+      parentRoute: typeof AuthenticatedResumesRoute
+    }
   }
 }
+
+interface AuthenticatedResumesRouteChildren {
+  AuthenticatedResumesIdRoute: typeof AuthenticatedResumesIdRoute
+}
+
+const AuthenticatedResumesRouteChildren: AuthenticatedResumesRouteChildren = {
+  AuthenticatedResumesIdRoute: AuthenticatedResumesIdRoute,
+}
+
+const AuthenticatedResumesRouteWithChildren =
+  AuthenticatedResumesRoute._addFileChildren(AuthenticatedResumesRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtsRoute: typeof AuthenticatedAtsRoute
@@ -388,7 +418,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
   AuthenticatedPortfolioRoute: typeof AuthenticatedPortfolioRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedResumesRoute: typeof AuthenticatedResumesRoute
+  AuthenticatedResumesRoute: typeof AuthenticatedResumesRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSkillsRoute: typeof AuthenticatedSkillsRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
@@ -401,7 +431,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
   AuthenticatedPortfolioRoute: AuthenticatedPortfolioRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedResumesRoute: AuthenticatedResumesRoute,
+  AuthenticatedResumesRoute: AuthenticatedResumesRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSkillsRoute: AuthenticatedSkillsRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,

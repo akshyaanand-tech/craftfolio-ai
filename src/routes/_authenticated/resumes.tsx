@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -103,9 +103,17 @@ function ResumesPage() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100"><MoreVertical className="h-3.5 w-3.5" /></Button></DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem><Pencil className="mr-2 h-3.5 w-3.5" />Edit</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/resumes/$id" params={{ id: r.id }} className="flex w-full items-center cursor-pointer">
+                          <Pencil className="mr-2 h-3.5 w-3.5" />Edit
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => duplicate(r)}><Copy className="mr-2 h-3.5 w-3.5" />Duplicate</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toast.info("PDF export coming soon")}><Download className="mr-2 h-3.5 w-3.5" />Download PDF</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/resumes/$id" params={{ id: r.id }} className="flex w-full items-center cursor-pointer">
+                          <Download className="mr-2 h-3.5 w-3.5" />Download PDF
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => remove(r.id)} className="text-destructive"><Trash2 className="mr-2 h-3.5 w-3.5" />Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

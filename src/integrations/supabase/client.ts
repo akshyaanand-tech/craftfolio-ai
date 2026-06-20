@@ -245,6 +245,38 @@ export const supabase = {
       }
     },
 
+    async setSession(tokens: any) {
+      try {
+        if (!tokens) throw new Error('No tokens provided');
+        const accessToken = tokens.access_token || tokens.accessToken;
+        const refreshToken = tokens.refresh_token || tokens.refreshToken;
+        
+        if (!accessToken) throw new Error('No access token in session');
+        
+        localStorage.setItem('cf-access-token', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('cf-refresh-token', refreshToken);
+        }
+        
+        // Fetch user info to verify and get user object
+        const userRes = await this.getUser();
+        if (userRes.error) {
+          throw userRes.error;
+        }
+        
+        const session = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          user: userRes.data.user
+        };
+        
+        authListeners.forEach(cb => cb('SIGNED_IN', session));
+        return { data: { session }, error: null };
+      } catch (err: any) {
+        return { data: null, error: err };
+      }
+    },
+
     onAuthStateChange(callback: any) {
       authListeners.add(callback);
       // Immediately run with current status
@@ -271,3 +303,42 @@ export const supabase = {
     return new SupabaseQueryBuilder(table);
   }
 } as any;
+
+// Auto-import tokens from URL hash or query params if present (from OAuth redirect)
+if (typeof window !== 'undefined') {
+  const hash = window.location.hash;
+  const search = window.location.search;
+  let accessToken = '';
+  let refreshToken = '';
+
+  if (hash && hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.substring(1));
+    accessToken = params.get('access_token') || '';
+    refreshToken = params.get('refresh_token') || '';
+  } else if (search && search.includes('access_token=')) {
+    const params = new URLSearchParams(search);
+    accessToken = params.get('access_token') || '';
+    refreshToken = params.get('refresh_token') || '';
+  }
+
+  if (accessToken) {
+    localStorage.setItem('cf-access-token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('cf-refresh-token', refreshToken);
+    }
+    // Clean up the URL hash/search to keep it clean
+    try {
+      const url = new URL(window.location.href);
+      url.hash = '';
+      if (url.searchParams.has('access_token')) {
+        url.searchParams.delete('access_token');
+        url.searchParams.delete('refresh_token');
+        url.searchParams.delete('state');
+      }
+      window.history.replaceState({}, document.title, url.toString());
+    } catch (e) {
+      console.error('[OAuth url cleanup error]', e);
+    }
+  }
+}
+

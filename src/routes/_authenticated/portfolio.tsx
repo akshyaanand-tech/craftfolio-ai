@@ -62,8 +62,18 @@ function PortfolioPage() {
   };
 
   const addProject = async () => {
+    if (!portfolio) return;
     const { data: u } = await supabase.auth.getUser();
-    await supabase.from("user_projects").insert({ user_id: u.user!.id, name: "New project", description: "" });
+    await supabase.from("user_projects").insert({ 
+      user_id: u.user!.id, 
+      portfolio_id: portfolio.id, 
+      name: "New project", 
+      description: "" 
+    });
+    qc.invalidateQueries({ queryKey: ["user_projects"] });
+  };
+  const updateProject = async (id: string, patch: any) => {
+    await supabase.from("user_projects").update(patch).eq("id", id);
     qc.invalidateQueries({ queryKey: ["user_projects"] });
   };
   const delProject = async (id: string) => {
@@ -101,11 +111,40 @@ function PortfolioPage() {
           </Card>
           <Card className="border-border/60 p-6">
             <div className="flex items-center justify-between"><div className="font-display text-sm font-semibold">Projects</div><Button size="sm" variant="outline" onClick={addProject}><Plus className="mr-1 h-3.5 w-3.5" />Add</Button></div>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-3">
               {projects?.map(p => (
-                <li key={p.id} className="flex items-center justify-between rounded-md border border-border/60 p-3">
-                  <div><div className="text-sm font-medium">{p.name}</div><div className="text-xs text-muted-foreground">{p.description || "No description"}</div></div>
-                  <Button variant="ghost" size="icon" onClick={() => delProject(p.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                <li key={p.id} className="rounded-md border border-border/60 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <Input 
+                      className="font-medium text-sm border-0 px-0 h-7 focus-visible:ring-0" 
+                      defaultValue={p.name} 
+                      onBlur={e => updateProject(p.id, { name: e.target.value })} 
+                      placeholder="Project Name" 
+                    />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0" onClick={() => delProject(p.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  <Textarea 
+                    className="text-xs min-h-16 resize-none" 
+                    defaultValue={p.description || ""} 
+                    onBlur={e => updateProject(p.id, { description: e.target.value })} 
+                    placeholder="Brief description of what you built..." 
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input 
+                      className="text-xs h-8" 
+                      defaultValue={p.url || ""} 
+                      onBlur={e => updateProject(p.id, { url: e.target.value })} 
+                      placeholder="Live Demo Link (https://...)" 
+                    />
+                    <Input 
+                      className="text-xs h-8" 
+                      defaultValue={p.repo || ""} 
+                      onBlur={e => updateProject(p.id, { repo: e.target.value })} 
+                      placeholder="GitHub Link (https://...)" 
+                    />
+                  </div>
                 </li>
               ))}
               {projects?.length === 0 && <div className="rounded-md border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">No projects yet</div>}

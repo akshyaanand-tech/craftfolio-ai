@@ -87,14 +87,35 @@ export class AuthService {
     };
   }
 
-  static async getUser(userId: string) {
-    const user = await prisma.user.findUnique({
+  static async getUser(userId: string, email?: string) {
+    let user = await prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true },
     });
-    if (!user) {
+
+    if (!user && email) {
+      console.log(`[AuthService] Provisioning new user for OAuth: id=${userId}, email=${email}`);
+      user = await prisma.$transaction(async (tx) => {
+        const u = await tx.user.create({
+          data: {
+            id: userId,
+            email,
+            passwordHash: '', // Empty password hash for OAuth
+          },
+        });
+        const p = await tx.profile.create({
+          data: {
+            id: u.id,
+            fullName: email.split('@')[0],
+            theme: 'dark',
+          },
+        });
+        return { ...u, profile: p };
+      });
+    } else if (!user) {
       throw new Error('User not found');
     }
+
     return {
       id: user.id,
       email: user.email,

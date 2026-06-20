@@ -53,12 +53,13 @@ export class AuthController {
 
   static async getUser(req: AuthenticatedRequest, res: Response) {
     const userId = req.userId;
+    const email = req.userEmail;
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
     try {
-      const user = await AuthService.getUser(userId);
+      const user = await AuthService.getUser(userId, email);
       return res.status(200).json({ user });
     } catch (err: any) {
       return res.status(404).json({ message: err.message });
