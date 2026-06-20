@@ -1,0 +1,263 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum JobStatus {
+  applied
+  assessment
+  interview
+  offer
+  rejected
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  googleId        String?
+  githubId        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+  profile         Profile?
+  resumes         Resume[]
+  portfolios      Portfolio[]
+  coverLetters    CoverLetter[]
+  atsReports      ATSReport[]
+  jobApplications JobApplication[]
+  skills          Skill[]
+  notifications   Notification[]
+  settings        Setting[]
+  educations      Education[]
+  experiences     Experience[]
+  careerGoals     CareerGoal[]
+
+  @@index([email])
+}
+
+model Profile {
+  id                  String    @id
+  user                User      @relation(fields: [id], references: [id], onDelete: Cascade)
+  fullName            String?
+  headline            String?
+  avatarUrl           String?
+  careerPath          String?
+  onboardingCompleted Boolean   @default(false)
+  theme               String    @default("dark")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+}
+
+model Resume {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  template       String          @default("modern")
+  content        Json            @default("{}")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  versions       ResumeVersion[]
+  atsReports     ATSReport[]
+
+  @@index([userId])
+}
+
+model ResumeVersion {
+  id            String   @id @default(uuid())
+  resumeId      String
+  resume        Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  title         String
+  template      String
+  content       Json
+  versionNumber Int
+  createdAt     DateTime @default(now())
+
+  @@index([resumeId])
+}
+
+model Portfolio {
+  id              String             @id @default(uuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug            String?            @unique
+  hero            Json               @default("{}")
+  about           String?
+  sections        Json               @default("[]")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+  projects        PortfolioProject[]
+
+  @@index([userId])
+  @@index([slug])
+}
+
+model PortfolioProject {
+  id          String    @id @default(uuid())
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  userId      String
+  name        String
+  description String?
+  url         String?
+  repo        String?
+  tags        String[]  @default([])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([portfolioId])
+  @@index([userId])
+}
+
+model CoverLetter {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  company   String?
+  role      String?
+  content   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+}
+
+model ATSReport {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId       String
+  resume         Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobDescription String
+  score          Int
+  missingKeywords String[] @default([])
+  feedback       Json     @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([resumeId])
+}
+
+model JobApplication {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   String
+  role      String
+  status    JobStatus @default(applied)
+  appliedAt DateTime  @default(now())
+  notes     String?
+  url       String?
+  position  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  level     String?
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model SkillGapReport {
+  id             String   @id @default(uuid())
+  userId         String
+  targetCompany  String
+  targetRole     String
+  currentSkills  String
+  missingSkills  String[] @default([])
+  roadmap        Json     @default("[]")
+  technologies   String[] @default([])
+  projects       Json     @default("[]")
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Education {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school    String
+  degree    String?
+  field     String?
+  startDate DateTime?
+  endDate   DateTime?
+  gpa       String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company         String
+  role            String?
+  startDate       DateTime?
+  endDate         DateTime?
+  description     String?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model CareerGoal {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole     String?
+  targetIndustry String?
+  timeline       String?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+}
+

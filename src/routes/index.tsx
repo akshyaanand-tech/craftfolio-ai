@@ -11,6 +11,7 @@ import { MarketingNav } from "@/components/site/marketing-nav";
 import { SiteFooter } from "@/components/site/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,7 +25,11 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const HEADLINE = "CRAFTFOLIO AI";
+import { AnimatePresence } from "framer-motion";
+import { AlertCircle, BookOpen, Layers, Code } from "lucide-react";
+import { toast } from "sonner";
+
+const HEADLINE = "Craftfolio AI";
 
 function StartupSequence({ onDone }: { onDone: () => void }) {
   const [typed, setTyped] = useState("");
@@ -35,7 +40,7 @@ function StartupSequence({ onDone }: { onDone: () => void }) {
       setTyped(HEADLINE.slice(0, i));
       if (i >= HEADLINE.length) {
         clearInterval(id);
-        setTimeout(onDone, 700);
+        setTimeout(onDone, 1000); // Wait exactly 1 second after completes
       }
     }, 75);
     return () => clearInterval(id);
@@ -46,19 +51,201 @@ function StartupSequence({ onDone }: { onDone: () => void }) {
       key="boot"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.6 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black"
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black text-white"
     >
-      <div className="font-display text-3xl font-semibold tracking-[0.18em] text-white sm:text-5xl md:text-6xl">
-        {typed}
-        <span className="ml-1 inline-block h-[0.9em] w-[2px] -translate-y-[2px] animate-pulse bg-white" />
+      <div className="flex flex-col items-center gap-4">
+        {/* Animated logo mark kept visible */}
+        <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-gradient-to-br from-primary to-accent animate-pulse">
+          <div className="absolute inset-[2.5px] rounded-[6px] bg-background/30 backdrop-blur-sm" />
+          <div className="absolute inset-0 flex items-center justify-center font-display text-lg font-bold text-primary-foreground">C</div>
+        </div>
+        <div className="font-display text-2xl font-semibold tracking-[0.18em] text-white sm:text-4xl md:text-5xl mt-2">
+          {typed}
+          <span className="ml-1 inline-block h-[0.9em] w-[2px] -translate-y-[2px] animate-pulse bg-white" />
+        </div>
       </div>
     </motion.div>
   );
 }
 
+const TAGLINES = [
+  "Create. Optimize. Apply.",
+  "Build Your Professional Presence.",
+  "From Resume to Portfolio.",
+  "Designed for Modern Careers."
+];
+
+function RotatingTagline() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIndex(prev => (prev + 1) % TAGLINES.length);
+    }, 3500);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="h-8 mt-4 flex items-center justify-center overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={index}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="font-display text-base font-semibold text-primary md:text-lg tracking-wide"
+        >
+          {TAGLINES[index]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function InteractiveWalkthrough({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [step, setStep] = useState(1);
+  const [atsScore, setAtsScore] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    const interval = setInterval(() => {
+      setStep(prev => (prev % 3) + 1);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [open]);
+
+  useEffect(() => {
+    if (step === 2 && open) {
+      setAtsScore(0);
+      const id = setInterval(() => {
+        setAtsScore(prev => {
+          if (prev >= 94) {
+            clearInterval(id);
+            return 94;
+          }
+          return prev + 2;
+        });
+      }, 30);
+      return () => clearInterval(id);
+    }
+  }, [step, open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl border-border/60 bg-background/95 backdrop-blur-xl p-6">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl font-semibold">Interactive Walkthrough</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-6 md:grid-cols-[220px_1fr] mt-4">
+          <div className="flex flex-col gap-2 border-r border-border/60 pr-4">
+            {[
+              { id: 1, label: "1. Resume Creation", desc: "Build tailored resume content" },
+              { id: 2, label: "2. ATS Analysis", desc: "Live match score scanner" },
+              { id: 3, label: "3. Portfolio Site", desc: "Instantly publish web portfolio" }
+            ].map(s => (
+              <button
+                key={s.id}
+                onClick={() => setStep(s.id)}
+                className={`text-left p-3 rounded-lg border transition ${
+                  step === s.id
+                    ? "border-primary/60 bg-primary/10 text-primary"
+                    : "border-border/60 hover:bg-secondary/40 text-muted-foreground"
+                }`}
+              >
+                <div className="text-xs font-semibold">{s.label}</div>
+                <div className="text-[10px] opacity-80 mt-0.5">{s.desc}</div>
+              </button>
+            ))}
+          </div>
+
+          <div className="min-h-[300px] flex items-center justify-center rounded-xl border border-border/60 bg-secondary/20 p-6 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              {step === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full space-y-4 font-mono text-xs max-w-md bg-background border border-border/60 rounded-lg p-5"
+                >
+                  <div className="flex items-center gap-1.5 border-b border-border/60 pb-2 mb-2 text-muted-foreground text-[10px]">
+                    <span className="h-2 w-2 rounded-full bg-primary" /> editor.json
+                  </div>
+                  <div><span className="text-primary">const</span> candidate = &#123;</div>
+                  <div className="pl-4">name: <span className="text-emerald-500">"Alex Chen"</span>,</div>
+                  <div className="pl-4">role: <span className="text-emerald-500">"Staff Product Engineer"</span>,</div>
+                  <div className="pl-4">experience: [</div>
+                  <div className="pl-8"><span className="text-emerald-500">"Linear - Product Engineer (2024-Present)"</span>,</div>
+                  <div className="pl-8"><span className="text-emerald-500">"Vercel - Frontend Engineer (2022-2024)"</span></div>
+                  <div className="pl-4">],</div>
+                  <div className="pl-4">skills: [<span className="text-emerald-500">"TypeScript"</span>, <span className="text-emerald-500">"React"</span>, <span className="text-emerald-500">"System Design"</span>]</div>
+                  <div>&#125;;</div>
+                </motion.div>
+              )}
+
+              {step === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full space-y-4 max-w-md bg-background border border-border/60 rounded-lg p-6 text-center"
+                >
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Scanning Resume against Staff Engineer role...</div>
+                  <div className="font-display text-7xl font-bold text-gradient my-4">{atsScore}%</div>
+                  <div className="space-y-2 text-left max-w-xs mx-auto text-xs">
+                    <div className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Format passes ATS checks</div>
+                    <div className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> High Action Verb count</div>
+                    <div className="flex items-center gap-2 text-amber-500"><AlertCircle className="h-3.5 w-3.5" /> Missing keyword: "observability"</div>
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full max-w-sm rounded-xl border border-border/60 bg-card/60 p-5 backdrop-blur shadow-xl space-y-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-display text-white font-bold">AC</div>
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">Alex Chen</div>
+                      <div className="text-xs text-muted-foreground">Staff Product Engineer</div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Building premium user experiences and developer tools. Previously designed features at Vercel and Notion.
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {["TypeScript", "React", "System Design"].map(s => (
+                      <span key={s} className="rounded bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{s}</span>
+                    ))}
+                  </div>
+                  <div className="border-t border-border/60 pt-3 flex justify-between items-center text-[10px] text-muted-foreground">
+                    <span>craftfolio.ai/alexchen</span>
+                    <span className="text-primary hover:underline flex items-center gap-0.5 cursor-pointer">Visit site <ArrowRight className="h-3 w-3" /></span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Landing() {
   const [booting, setBooting] = useState(true);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("cf-booted") === "1") {
@@ -73,12 +260,14 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {booting && <StartupSequence onDone={finishBoot} />}
+      <AnimatePresence>
+        {booting && <StartupSequence onDone={finishBoot} />}
+      </AnimatePresence>
 
-      {!booting && <MarketingNav delay={0.2} />}
+      {!booting && <MarketingNav delay={0.3} />}
 
       <main className={booting ? "opacity-0" : ""}>
-        <Hero />
+        <Hero onWatchDemo={() => setDemoOpen(true)} />
         <Stats />
         <Features />
         <Preview />
@@ -87,19 +276,21 @@ function Landing() {
       </main>
 
       {!booting && <SiteFooter />}
+
+      <InteractiveWalkthrough open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   );
 }
 
-function Hero() {
+function Hero({ onWatchDemo }: { onWatchDemo: () => void }) {
   return (
     <section className="relative overflow-hidden border-b border-border/60">
       <div className="absolute inset-0 hero-gradient" aria-hidden />
       <div className="absolute inset-0 grid-bg opacity-40 dark:opacity-100" aria-hidden />
       <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-24 md:pt-32">
         <motion.div
-          initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
@@ -109,22 +300,27 @@ function Hero() {
           <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
             Build a resume that <span className="text-gradient">opens doors</span>.
           </h1>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.8 }}
+          >
+            <RotatingTagline />
+          </motion.div>
           <p className="mx-auto mt-6 max-w-xl text-balance text-base text-muted-foreground md:text-lg">
             Create ATS-optimized resumes, professional portfolios, and career documents from one platform — designed for the next generation of professionals.
           </p>
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.9, duration: 0.5 }}
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.8 }}
             className="mt-9 flex flex-wrap items-center justify-center gap-3"
           >
             <Button asChild size="lg" className="h-11 rounded-full px-6">
               <Link to="/auth/signup">Get started <ArrowRight className="ml-1 h-4 w-4" /></Link>
             </Button>
-            <Button variant="ghost" size="lg" className="h-11 rounded-full px-5 text-foreground/80">
+            <Button variant="ghost" size="lg" onClick={onWatchDemo} className="h-11 rounded-full px-5 text-foreground/80 cursor-pointer">
               <Play className="mr-2 h-4 w-4" /> Watch demo
             </Button>
           </motion.div>
-          <div className="mt-6 text-xs text-muted-foreground">No credit card required · Free forever plan</div>
         </motion.div>
 
         <motion.div
@@ -250,6 +446,80 @@ function Features() {
   );
 }
 
+function PortfolioMockup() {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/60 p-2 card-shadow backdrop-blur">
+      <div className="rounded-xl border border-border/60 bg-background">
+        {/* Browser Top Bar */}
+        <div className="flex items-center gap-1.5 border-b border-border/60 px-4 py-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
+          <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
+          <div className="ml-3 text-xs text-muted-foreground font-mono">craftfolio.ai/alexchen</div>
+        </div>
+        
+        {/* Portfolio Layout */}
+        <div className="p-8 space-y-6 text-left">
+          {/* Header */}
+          <div className="flex justify-between items-start flex-wrap gap-4">
+            <div>
+              <div className="font-display text-3xl font-semibold tracking-tight text-gradient">Alex Chen</div>
+              <div className="text-sm text-muted-foreground mt-1">Staff Product Engineer · San Francisco</div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="h-8 text-xs rounded-lg cursor-pointer">Resume</Button>
+              <Button size="sm" className="h-8 text-xs rounded-lg cursor-pointer">Contact</Button>
+            </div>
+          </div>
+
+          <div className="border-t border-border/60 my-4" />
+
+          {/* About section */}
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-primary">About</div>
+            <p className="text-sm text-foreground/80 leading-relaxed max-w-2xl">
+              I build premium web applications and user interfaces. Currently leading key frontend infrastructure initiatives at Linear. Passionate about developer tooling, design systems, and observability.
+            </p>
+          </div>
+
+          {/* Grid section */}
+          <div className="grid gap-4 md:grid-cols-2 pt-2">
+            <div className="rounded-lg border border-border/60 bg-secondary/20 p-4 space-y-2">
+              <div className="text-sm font-semibold flex justify-between items-center">
+                Linear Sync Engine
+                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">Active</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Real-time caching and synchronization protocol for high-throughput desktop application UI states.
+              </p>
+              <div className="flex gap-1.5 pt-1">
+                {["TypeScript", "Go", "WebSockets"].map(t => (
+                  <span key={t} className="text-[9px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">{t}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border/60 bg-secondary/20 p-4 space-y-2">
+              <div className="text-sm font-semibold flex justify-between items-center">
+                React Federated Shell
+                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">Open Source</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                A lightweight micro-frontend frame orchestrator for high-performance React runtime composition.
+              </p>
+              <div className="flex gap-1.5 pt-1">
+                {["React", "Webpack", "Docker"].map(t => (
+                  <span key={t} className="text-[9px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Preview() {
   return (
     <section id="preview" className="border-b border-border/60 surface py-24">
@@ -260,12 +530,13 @@ function Preview() {
           <p className="mt-4 text-muted-foreground">Drag, edit, version — every change reflected in real time across resumes, portfolios, and exports.</p>
         </div>
         <div className="mt-12">
-          <ResumeMockup />
+          <PortfolioMockup />
         </div>
       </div>
     </section>
   );
 }
+
 
 function Testimonials() {
   const quotes = [

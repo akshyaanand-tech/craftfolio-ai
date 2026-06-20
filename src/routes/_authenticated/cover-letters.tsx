@@ -52,7 +52,7 @@ function CoverLettersPage() {
             <ul className="space-y-0.5">
               {letters.map(l => (
                 <li key={l.id}>
-                  <button onClick={() => setSelected(l.id)} className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition ${active?.id === l.id ? "bg-secondary" : "hover:bg-secondary/60"}`}>
+                  <button onClick={() => setSelected(l.id)} className={`group flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition ${active?.id === l.id ? "bg-secondary" : "hover:bg-secondary/60"}`}>
                     <span className="truncate">{l.title}</span>
                     <Trash2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 hover:text-destructive group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); remove(l.id); }} />
                   </button>
